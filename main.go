@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/alexflint/go-arg"
@@ -12,19 +11,40 @@ func main() {
 
 	arg.MustParse(&args)
 
-	var size = len(args.Data)
+	var data = []byte(args.Data)
+	size := len(data) 
 
-	if args.Clipboard { 
-		WriteToClipboard(&args)
-		os.Exit(1)
-	}
+	if args.Clipboard && size != 0 {
 
-	for _, filename := range args.Filenames {
-		err := os.WriteFile(filename, []byte(args.Data), 0644)
-		if err != nil { 
-			fmt.Fprintf(os.Stderr, "error: failed to write to %s > %s\n",filename, err)
+		cmdArgs := os.Args[1:]
+		clipArgPos := LinearSearch(cmdArgs, "-c")
+
+		if clipArgPos < LinearSearch(cmdArgs, "-d") || clipArgPos < LinearSearch(cmdArgs, "--data") {
+			for _, filename := range args.Filenames {
+				// TODO: handle errors 
+				AppendToClipboard(filename)
+				AppendToFile(filename, data) 
+			}
+		} else { 
+			for _, filename := range args.Filenames { 
+				// TODO: handle errors
+				AppendToFile(filename, data)
+				AppendToClipboard(filename)
+			}
+		}
+	} else { 
+		if args.Clipboard { 
+			for _, filename := range args.Filenames {
+				// TODO: handle errors 
+				WriteToClipboard(filename)
+			}
 		} else {
-			fmt.Fprintf(os.Stdout, "info: written %d bytes to %s\n", size, filename) 
-		} 
+			for _, filename := range args.Filenames { 
+				// TODO: handle errors 
+				WriteToFile(filename, data) 
+			}
+		}
 	}
+
+
 }

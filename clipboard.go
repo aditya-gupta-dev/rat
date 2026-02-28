@@ -1,23 +1,37 @@
 package main
 
 import (
-	"log"
 	"os"
 
 	"golang.design/x/clipboard"
 )
 
-func WriteToClipboard(args *ArgsModel) { 
+func WriteToClipboard(filename string) error {
+	err := clipboard.Init()
+	if err != nil {
+		return err 
+	}
 
-	err := clipboard.Init()	
+	data := clipboard.Read(clipboard.FmtText)
+
+	return os.WriteFile(filename, data, 0o644)
+}
+
+func AppendToClipboard(filename string) error {
+	err := clipboard.Init()
+	if err != nil {
+		return err 
+	}
+
+	data := clipboard.Read(clipboard.FmtText)
+	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0o644)
 
 	if err != nil { 
-		log.Fatalf("error: %s\n", err)
+		return err 
 	}
+	defer file.Close()
 
-	data := clipboard.Read(clipboard.FmtText) 
+	_, err = file.Write(data)
 
-	for _, filename := range args.Filenames {
-		os.WriteFile(filename, data, 0644)
-	}
+	return err 
 }
