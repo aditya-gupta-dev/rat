@@ -14,6 +14,11 @@ func main() {
 
 	var size = len(args.Data)
 
+	if args.Clipboard { 
+		WriteToClipboard(&args)
+		os.Exit(1)
+	}
+
 	for _, filename := range args.Filenames {
 		err := os.WriteFile(filename, []byte(args.Data), 0644)
 		if err != nil { 

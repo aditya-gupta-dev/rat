@@ -2,5 +2,6 @@ package main
 
 type ArgsModel struct { 
 	Filenames []string `arg:"positional" help:"file names you wanna write to"`
-	Data string `help:"data to be written"`
+	Data string `arg:"-d" help:"data to be written"`
+	Clipboard bool `arg:"-c" help:"write data from clipboard"`
 }
