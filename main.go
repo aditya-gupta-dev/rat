@@ -24,19 +24,28 @@ func main() {
 			for _, filename := range args.Filenames {
 				if err := AppendToClipboard(filename); err != nil {
 					logErr(fmt.Sprintf("failed to append clipboard to %s, %s", filename, err))
+				} else if args.Verbose { 
+					logInfo(fmt.Sprintf("copied clipboard to %s", filename))
 				}
+
 				if err := AppendToFile(filename, data); err != nil {
-					logErr(fmt.Sprintf("faield to append to %s %s", filename, err))
+					logErr(fmt.Sprintf("failed to append to %s %s", filename, err))
+				} else if args.Verbose { 
+					logInfo(fmt.Sprintf("written to file %s", filename))
 				}
 			}
 		} else {
 			for _, filename := range args.Filenames {
 				if err := AppendToFile(filename, data); err != nil {
 					logErr(fmt.Sprintf("failed to write clipboard to %s %s", filename, err))
+				} else if args.Verbose { 
+					logInfo(fmt.Sprintf("copied clipboard to %s", filename))
 				}
 
 				if err := AppendToClipboard(filename); err != nil {
 					logErr(fmt.Sprintf("failed to write to %s %s", filename, err))
+				} else if args.Verbose { 
+					logInfo(fmt.Sprintf("written to file %s", filename))
 				}
 			}
 		}
@@ -45,12 +54,16 @@ func main() {
 			for _, filename := range args.Filenames {
 				if err := WriteToClipboard(filename); err != nil {
 					logErr(fmt.Sprintf("failed to copy to clipboard %s %s", filename, err))
+				} else if args.Verbose { 
+					logInfo(fmt.Sprintf("copied to clipboard to %s", filename))
 				}
 			}
 		} else {
 			for _, filename := range args.Filenames {
 				if err := WriteToFile(filename, data); err != nil {
 					logErr(fmt.Sprintf("failed to write to file %s %s", filename, err))
+				} else if args.Verbose { 
+					logInfo(fmt.Sprintf("written to file %s", filename))
 				}
 			}
 		}
