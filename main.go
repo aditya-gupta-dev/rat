@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/alexflint/go-arg"
@@ -11,8 +12,8 @@ func main() {
 
 	arg.MustParse(&args)
 
-	var data = []byte(args.Data)
-	size := len(data) 
+	data := []byte(args.Data)
+	size := len(data)
 
 	if args.Clipboard && size != 0 {
 
@@ -21,30 +22,37 @@ func main() {
 
 		if clipArgPos < LinearSearch(cmdArgs, "-d") || clipArgPos < LinearSearch(cmdArgs, "--data") {
 			for _, filename := range args.Filenames {
-				// TODO: handle errors 
-				AppendToClipboard(filename)
-				AppendToFile(filename, data) 
-			}
-		} else { 
-			for _, filename := range args.Filenames { 
-				// TODO: handle errors
-				AppendToFile(filename, data)
-				AppendToClipboard(filename)
-			}
-		}
-	} else { 
-		if args.Clipboard { 
-			for _, filename := range args.Filenames {
-				// TODO: handle errors 
-				WriteToClipboard(filename)
+				if err := AppendToClipboard(filename); err != nil {
+					logErr(fmt.Sprintf("failed to append clipboard to %s, %s", filename, err))
+				}
+				if err := AppendToFile(filename, data); err != nil {
+					logErr(fmt.Sprintf("faield to append to %s %s", filename, err))
+				}
 			}
 		} else {
-			for _, filename := range args.Filenames { 
-				// TODO: handle errors 
-				WriteToFile(filename, data) 
+			for _, filename := range args.Filenames {
+				if err := AppendToFile(filename, data); err != nil {
+					logErr(fmt.Sprintf("failed to write clipboard to %s %s", filename, err))
+				}
+
+				if err := AppendToClipboard(filename); err != nil {
+					logErr(fmt.Sprintf("failed to write to %s %s", filename, err))
+				}
+			}
+		}
+	} else {
+		if args.Clipboard {
+			for _, filename := range args.Filenames {
+				if err := WriteToClipboard(filename); err != nil {
+					logErr(fmt.Sprintf("failed to copy to clipboard %s %s", filename, err))
+				}
+			}
+		} else {
+			for _, filename := range args.Filenames {
+				if err := WriteToFile(filename, data); err != nil {
+					logErr(fmt.Sprintf("failed to write to file %s %s", filename, err))
+				}
 			}
 		}
 	}
-
-
 }
